@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+flask-restplus
+flask-migrate
+flask-jwt-extended
+gunicorn
+passlib
+pillow
+psycopg2-binary
+psycopg2
+python-dotenv
