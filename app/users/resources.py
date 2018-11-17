@@ -42,9 +42,7 @@ class UserRegister(Resource):
         status = userPost(data)
         if status == 1:
             return {
-                'msg' : 'User {} was created.'.format(data['username']),
-                'access_token' : create_access_token(identity=data['username']),
-                'refresh_token' : create_refresh_token(identity=data['username'])
+                'msg' : 'User {} was created.'.format(data['username'])
             }, 200
         return {'msg' : 'Operation failed.\nUser already exists.'},409
 
