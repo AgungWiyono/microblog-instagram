@@ -7,6 +7,8 @@ class User(db.Model):
     username = db.Column(db.String(25), unique=True, nullable=False)
     password = db.Column(db.String(), unique=True, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
+    about = db.Column(db.Text)
+    poin = db.Column(db.Integer)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     def __str__(self):
@@ -18,6 +20,10 @@ class User(db.Model):
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def is_phone_exists(cls, phone):
+        return cls.query.filter_by(phone=phone).first()
 
     @staticmethod
     def hash_password(password):

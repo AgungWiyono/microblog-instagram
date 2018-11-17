@@ -22,10 +22,16 @@ authorization.add_argument('Authorization', location='headers')
 @api.route('/')
 @api.doc('show and list users')
 class UserList(Resource):
-    @api.marshal_list_with(userSchema, envelope='resource', )
+    @jwt_required
+    @api.expect(authorization)
     def get(self):
-        return userList()
+        me = get_jwt_identity()
+        me_id = User.query.filter_by(username=me).first()
+        return me_id, 200
 
+@api.route('/register')
+@api.doc(description='user registration')
+class UserRegister(Resource):
     @api.expect(userSchema, )
     def post(self):
         data = request.get_json()
@@ -35,9 +41,8 @@ class UserList(Resource):
                 'message' : 'User {} was created.'.format(data['username']),
                 'access_token' : create_access_token,
                 'refresh_token' : create_refresh_token
-            }
-        return {'message' : 'Operation failed.\nUser already exists.'}
-
+            }, 200
+        return {'message' : 'Operation failed.\nUser already exists.'},409
 
 @api.route('/login')
 class UserLogin(Resource):
@@ -46,15 +51,6 @@ class UserLogin(Resource):
         data = request.get_json()
         status = userLogin(data)
         return status
-
-@api.route('/me')
-class SecretResource(Resource):
-    @jwt_required
-    @api.expect(authorization)
-    def get(self):
-        me = get_jwt_identity()
-        me_id = User.query.filter_by(username=me).first()
-        return {'message' : 'hello'}
 
 @api.route('/refresh_token')
 class refreshToken(Resource):
