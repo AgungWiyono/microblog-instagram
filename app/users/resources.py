@@ -38,6 +38,7 @@ class UserList(Resource):
             }
         return {'message' : 'Operation failed.\nUser already exists.'}
 
+
 @api.route('/login')
 class UserLogin(Resource):
     @api.expect(userLoginSchema)
@@ -53,7 +54,7 @@ class SecretResource(Resource):
     def get(self):
         me = get_jwt_identity()
         me_id = User.query.filter_by(username=me).first()
-        return {'message' : me_id.id}
+        return {'message' : 'hello'}
 
 @api.route('/refresh_token')
 class refreshToken(Resource):

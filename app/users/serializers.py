@@ -11,8 +11,8 @@ userSchema = api.model('User',{
 
 # Schema: User Login
 userLoginSchema = api.model('User Login', {
-                'username' : fields.String(required=True),
-                'password' : fields.String(required=True)
+                'username' : fields.String(required=True, description='Registered username'),
+                'password' : fields.String(required=True, description='password')
                 }
 )
 
