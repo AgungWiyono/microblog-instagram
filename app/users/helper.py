@@ -12,11 +12,11 @@ def userList():
 
 def userPost(data):
     username = data.get('username')
-    if User.find_by_username(username):
+    phone = data.get('phone')
+    if User.find_by_username(username) or User.is_phone_exists(phone):
         return 0
 
     password = User.hash_password(data.get('password'))
-    phone = data.get('phone')
     data = User(username=username, password=password, phone=phone)
     db.session.add(data)
     db.session.commit()
@@ -28,7 +28,7 @@ def userLogin(data):
 
     exist_user = User.query.filter_by(username=username).first()
     if not exist_user:
-        return ({'message' : "User doesn't exists."})
+        return {'message' : "User doesn't exists."},404
 
     if User.verify_password(password, exist_user.password):
         access_token = create_access_token(identity=data['username'], expires_delta=timedelta(hours=10)),
@@ -38,6 +38,17 @@ def userLogin(data):
             'message' : 'Logged in as {}'.format(data['username']),
             'access_token' : access_token,
             'refresh_token' : refresh_token
-        }
+        },200
     else:
-        return {'message' : 'Login failed.'}
+        return {'message' : 'Password is not correct.'},401
+
+# Get user's profile
+def getMyProfile(name):
+    data = User.query.filter_by(username=name).first()
+
+    '''
+    if data is None:
+        return {'msg' : 'User not found.'}, 404
+    '''
+    return data
+

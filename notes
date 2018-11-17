@@ -1,0 +1,9 @@
+17 November 2018
+- Endpoint created:
+Base endpoint : '/user'
+'/'-POST 	: Register new user
+'/'-GET		: Get logged user profile
+'/register'	: Register New User
+
+Base Endpoint : '/posts'
+'/post'-POST	: Post user new story
