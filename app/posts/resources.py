@@ -13,8 +13,8 @@ img.add_argument('Authorization', location='headers')
 img.add_argument('image', location='files', type='FileStorage')
 img.add_argument('post_body', location='form', type='string')
 
-@api.route('/imageTest')
-class imageUploadTest(Resource):
+@api.route('/post')
+class post(Resource):
     @jwt_required
     @api.doc(parser=img)
     def post(self):

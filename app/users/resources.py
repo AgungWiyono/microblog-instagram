@@ -6,11 +6,10 @@ from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt
                                 get_raw_jwt, create_access_token, create_refresh_token
 
 from app.users import api
-from app.users.helper import userList, userPost, userLogin
+from app.users.helper import userList, userPost, userLogin, getMyProfile
 from app.users.models import User, RevokedToken
 from app.users.serializers import userSchema, userLoginSchema, tesSecretResource
-from app.users.serializers import refreshToken
-
+from app.users.serializers import refreshToken, myProfile
 
 authorization = api.parser()
 authorization.add_argument('Authorization', location='headers')
@@ -24,10 +23,15 @@ authorization.add_argument('Authorization', location='headers')
 class UserList(Resource):
     @jwt_required
     @api.expect(authorization)
+    @api.marshal_with(myProfile)
     def get(self):
+        # Should get the user post and bio
         me = get_jwt_identity()
-        me_id = User.query.filter_by(username=me).first()
-        return me_id, 200
+
+        # Get user's profile from helper
+        data = getMyProfile(me)
+        return data
+
 
 @api.route('/register')
 @api.doc(description='user registration')
@@ -38,11 +42,11 @@ class UserRegister(Resource):
         status = userPost(data)
         if status == 1:
             return {
-                'message' : 'User {} was created.'.format(data['username']),
-                'access_token' : create_access_token,
-                'refresh_token' : create_refresh_token
+                'msg' : 'User {} was created.'.format(data['username']),
+                'access_token' : create_access_token(identity=data['username']),
+                'refresh_token' : create_refresh_token(identity=data['username'])
             }, 200
-        return {'message' : 'Operation failed.\nUser already exists.'},409
+        return {'msg' : 'Operation failed.\nUser already exists.'},409
 
 @api.route('/login')
 class UserLogin(Resource):
@@ -71,9 +75,9 @@ class UserLogoutAccess(Resource):
         try:
             revoked_token = RevokedToken(jti=jti)
             revoked_token.add()
-            return {'message' : 'Token has been revoked'}
+            return {'msg' : 'Token has been revoked'}
         except:
-            return {'message' : 'Something error'}, 500
+            return {'msg' : 'Something error'}, 500
 
 @api.route('/logoutRefresh')
 class UserLogoutRefresh(Resource):
@@ -84,6 +88,8 @@ class UserLogoutRefresh(Resource):
         try:
             revoked_token = RevokedToken(jti=jti)
             revoked_token.add()
-            return {'message' : 'Token has been revoked'}
+            return {'msg' : 'Token has been revoked'}
         except:
-            return {'message' : 'Something error'}, 500
+            return {'msg' : 'Something error'}, 500
+
+

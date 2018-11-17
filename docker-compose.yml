@@ -10,6 +10,8 @@ services:
                         main:app
                 environment:
                         PYTHONUNBUFFERED: 'true'
+                depends_on:
+                        - postgres
                 volumes:
                         - '.:/app'
                 ports:

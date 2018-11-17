@@ -41,3 +41,14 @@ def userLogin(data):
         },200
     else:
         return {'message' : 'Password is not correct.'},401
+
+# Get user's profile
+def getMyProfile(name):
+    data = User.query.filter_by(username=name).first()
+
+    '''
+    if data is None:
+        return {'msg' : 'User not found.'}, 404
+    '''
+    return data
+
