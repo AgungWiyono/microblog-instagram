@@ -9,6 +9,7 @@ userSchema = api.model('User',{
                 }
 )
 
+
 # Schema: User Login
 userLoginSchema = api.model('User Login', {
                 'username' : fields.String(required=True, description='Registered username'),
@@ -16,11 +17,10 @@ userLoginSchema = api.model('User Login', {
                 }
 )
 
-# Schema: Resource for Testing JWT Auhentication
-tesSecretResource = api.model('Secret Resource', {
-                'message' : fields.String()
-                                                            }
-)
+# User id schema
+userId = api.model('User ID receiver', {
+                'user_id' : fields.String(required=True)
+})
 
 # Schema : Refresh Token
 refreshToken = api.model('Refresh_Token',{
@@ -53,3 +53,9 @@ myProfile = api.model(
                 }
 )
 
+# Show other user profile
+otherProfile = api.model(
+    'Show another user profile',{
+        'id' : fields.Url('user_other_user_list', absolute=True)
+    }
+    )

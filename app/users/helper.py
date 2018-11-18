@@ -16,11 +16,15 @@ def userPost(data):
     if User.find_by_username(username):
         return {
             'msg' : 'Username is exists'
-        }, 409
+        }, 422
     if User.is_phone_exists(phone):
         return{
             'msg': 'Phone number exist'
-        }, 409
+        }, 422
+    if phone.isalpha():
+        return {
+            'msg': 'Phone number must contain numbers only.'
+        }, 422
 
     password = User.hash_password(data.get('password'))
     data = User(username=username, password=password, phone=phone)
@@ -46,7 +50,7 @@ def userLogin(data):
 
         return {
             'username': exist_user.username ,
-            'phone': exist_user.phone,
+            'id': exist_user.id,
             'token' : access_token
         },200
     else:
@@ -56,9 +60,15 @@ def userLogin(data):
 def getMyProfile(name):
     data = User.query.filter_by(username=name).first()
 
-    '''
-    if data is None:
-        return {'msg' : 'User not found.'}, 404
-    '''
     return data
 
+def userSubscribe(user, target):
+    user = User.query.filter_by(username=user).first()
+    target = User.query.filter_by(id=int(target)).first()
+
+    if user.is_subscribing(target):
+        user.unsubscribe(user)
+        return {'msg': 'Unsribing success'}, 200
+
+    user.subscribe(target)
+    return {'msg': 'You have subscribed now'}, 200

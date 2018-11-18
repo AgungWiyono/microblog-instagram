@@ -7,8 +7,6 @@ from flask_jwt_extended import JWTManager
 
 from config import config as Cof
 
-# Image sender blueprint
-from .image_sender import img_sender
 
 #importing api resources
 
@@ -26,20 +24,20 @@ def create_app(config=Cof):
     migrate.init_app(app, db)
     api.init_app(app, title='My Test')
 
-    app.register_blueprint(img_sender)
-
     return app
 
 
 
-from .users.models import User, RevokedToken
 from .posts.models import Post
+from .users.models import User, RevokedToken
 
 from .users.resources import api as userApi
 from .posts.resources import api as postApi
+# from .image.resources import api as imageApi
 
 api.add_namespace(userApi, path='/users')
 api.add_namespace(postApi, path='/posts')
+# api.add_namespace(imageApi, path='/media')
 
 jwt._set_error_handler_callbacks(api)
 

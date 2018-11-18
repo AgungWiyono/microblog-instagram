@@ -7,9 +7,10 @@ from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt
 
 from app.users import api
 from app.users.helper import userList, userPost, userLogin, getMyProfile
+from app.users.helper import userSubscribe
 from app.users.models import User, RevokedToken
-from app.users.serializers import userSchema, userLoginSchema, tesSecretResource
-from app.users.serializers import refreshToken, myProfile
+from app.users.serializers import userSchema, userLoginSchema,otherProfile
+from app.users.serializers import refreshToken, myProfile, userId
 
 authorization = api.parser()
 authorization.add_argument('Authorization', location='headers')
@@ -19,7 +20,7 @@ authorization.add_argument('Authorization', location='headers')
 # @api.doc(parser = authorization, body=userLoginSchema)
 
 @api.route('/')
-@api.doc('show and list users')
+@api.doc(description='Show logged in user profile')
 class UserList(Resource):
     @jwt_required
     @api.expect(authorization)
@@ -32,6 +33,14 @@ class UserList(Resource):
         data = getMyProfile(me)
         return data
 
+@api.route('/<id>')
+@api.doc(description='Show user profile with id x')
+class OtherUserList(Resource):
+    @api.marshal_with(otherProfile)
+    def get(self, id):
+        user = User.query.filter_by(id=id).first().username
+        data = {'id':1}
+        return data
 
 @api.route('/register')
 @api.doc(description='user registration')
@@ -50,6 +59,21 @@ class UserLogin(Resource):
         status = userLogin(data)
         return status
 
+@api.route('/subsribe')
+class Subscribe(Resource):
+    @jwt_required
+    @api.doc(parser=authorization, body=userId)
+    def post(self):
+        user = get_jwt_identity()
+        target = int(request.get_json()['user_id'])
+
+        data = userSubscribe(user, target)
+        return data
+
+
+
+
+# =======================================================================
 @api.route('/refresh_token')
 class refreshToken(Resource):
     @jwt_refresh_token_required

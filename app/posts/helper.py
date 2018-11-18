@@ -60,20 +60,11 @@ def saveImageTest(user, hd_folder, thumb_folder, temp_folder, image):
 
     return img_name
 
-
-def saveImageTemp(path, image):
-    img_extension = os.path.splitext(image.filename)[1]
-    name = datetime.now().strftime('%Y%m%d%H%M%S%f') + img_extension
-    saved_path = os.path.join(path, name)
-    image.save(saved_path)
-    return name
-
 def insertPost(data):
     user= User.query.filter_by(username= get_jwt_identity()).first()
     user_id = user.id
     post = data.get('story')
-    hd = data.get('hd')
-    thumb = data.get('thumb')
+    image = data.get('image')
 
     data = Post(
         story= post,
