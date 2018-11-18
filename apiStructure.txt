@@ -1,0 +1,34 @@
+==========================================================================
+/USER base: user management endpoint
+==========================================================================
+
+'/' ['GET']: Show logged in user's profile
+
+'/' ['PUT']: Edit logged in user's profile, excluding profile's photo
+
+'/pp' ['POST']: Change logged in user's current profile photos 
+
+'/<username> ['GET']' : Show other's user profile
+
+'/subscribe' ['POST']: Logged in user's start subscribing artist
+
+
+==========================================================================
+POST base: posts management endpoint
+==========================================================================
+
+'/' ['POST']: send new post
+
+'/{x} ['GET']' : Show post with id x
+
+==========================================================================
+/EXPLORE base: explore post endpoint
+==========================================================================
+
+'/' ['GET'] : Home screen. Show random posts
+
+
+==========================================================================
+/POIN base: Adding user's poin
+==========================================================================
+'/' ['POST']: Add user's current poin

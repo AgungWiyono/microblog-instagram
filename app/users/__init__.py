@@ -1,3 +1,3 @@
 from flask_restplus import Namespace
 
-api = Namespace('user', description = 'user management')
+api = Namespace('User Endpoint', description = 'user management')

@@ -2,6 +2,12 @@ from passlib.hash import pbkdf2_sha256 as sha256
 
 from app import db
 
+
+followers = db.Table('followers',
+                     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+                     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+                    )
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     photo = db.Column(db.String())
@@ -11,6 +17,13 @@ class User(db.Model):
     about = db.Column(db.Text, default='Hello World')
     poin = db.Column(db.Integer)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    followed = db.relationship(
+            'User', secondary=followers,
+            primaryjoin = (followers.c.follower_id == id),
+            secondaryjoin = (followers.c.follower_id == id),
+            backref = db.backref('followers', lazy='dynamic'),
+            lazy = 'dynamic'
+    )
 
     def __str__(self):
         return '{} : {}'.format(self.username, self.password)
@@ -51,3 +64,4 @@ class RevokedToken(db.Model):
     def is_jti_blacklisted(cls, jti):
         query = cls.query.filter_by(jti=jti).first()
         return bool(query)
+

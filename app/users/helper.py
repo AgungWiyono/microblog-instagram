@@ -56,7 +56,7 @@ def userLogin(data):
 
         return {
             'username': exist_user.username ,
-            'phone': exist_user.phone,
+            'user_id': exist_user.id,
             'token' : access_token
         },200
     else:
