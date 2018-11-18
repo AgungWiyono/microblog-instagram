@@ -10,30 +10,20 @@ def userList():
     data = User.query.all()
     return data
 
-def userRegister(data):
+def userPost(data):
     username = data.get('username')
     phone = data.get('phone')
-    pwd = data.get('password')
-    photo = data.get('photo')
-
-    if username is None or phone is None or pwd is None:
-        return {
-            'msg': 'Please fill all fields.'
-        }, 422
-
-
     if User.find_by_username(username):
         return {
             'msg' : 'Username is exists'
-        }, 422
+        }, 409
     if User.is_phone_exists(phone):
         return{
             'msg': 'Phone number exist'
-        }, 422
+        }, 409
 
     password = User.hash_password(data.get('password'))
-    data = User(username=username, password=password, phone=phone, photo=photo)
-
+    data = User(username=username, password=password, phone=phone)
     db.session.add(data)
     db.session.commit()
     return {
@@ -56,7 +46,7 @@ def userLogin(data):
 
         return {
             'username': exist_user.username ,
-            'user_id': exist_user.id,
+            'phone': exist_user.phone,
             'token' : access_token
         },200
     else:
