@@ -14,13 +14,15 @@ from app import User
 db = SQLAlchemy()
 
 def createLocation(user, hd_path, thumb_path, temp_path):
-    user_id = str(User.get_user_id(user))
-    hd_path = hd_path + user_id +'/'
-    thumb_path = thumb_path + user_id +'/'
+    hd_path = hd_path + user +'/'
+    thumb_path = thumb_path + user +'/'
+    temp_path = temp_path + user + '/'
     if not os.path.exists(hd_path):
         os.makedirs(hd_path)
     if not os.path.exists(thumb_path):
         os.makedirs(thumb_path)
+    if not os.path.exists(temp_path):
+        os.makedirs(temp_path)
 
 def toThumbnail(image):
     # Insert resize script here
@@ -36,25 +38,28 @@ def checkSize(image):
     # Return bool
     # False if image is too big
 
-def saveImage(user, hd_folder, thumb_folder, temp_folder, image):
+def saveImageTest(user, hd_folder, thumb_folder, temp_folder, image):
 
     # Rename image filename and create folder
-    user = str(User.get_user_id(user))
     img_extension = os.path.splitext(image.filename)[1]
     img_name = datetime.now().strftime('%Y%m%d%H%M%S%f') + img_extension
+    temp_path = temp_folder + user + '/' + img_name
+    image.save(temp_path)
 
-    # Resize and save to HD
-    hd_image = Image.open(image)
-    hd_path = hd_folder + user + '/' + img_name
-    hd_image.save(hd_path)
 
     # Resize and save to Thumb
-    thumbnail_image = Image.open(hd_path)
+    thumbnail_image = Image.open(temp_path)
     thumbnail_image.thumbnail((128,128))
     thumb_path = thumb_folder + user + '/' + img_name
     thumbnail_image.save(thumb_path)
 
+    # Resize and save to HD
+    hd_image = Image.open(temp_path)
+    hd_path = hd_folder + user + '/' + img_name
+    hd_image.save(hd_path)
+
     return img_name
+
 
 def saveImageTemp(path, image):
     img_extension = os.path.splitext(image.filename)[1]

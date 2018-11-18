@@ -1,6 +1,5 @@
 from flask import Blueprint, request, send_from_directory
 from flask import current_app as app
-from app import User
 
 img_sender = Blueprint('image_sender', __name__, url_prefix='/img')
 
@@ -8,9 +7,8 @@ img_sender = Blueprint('image_sender', __name__, url_prefix='/img')
 def send_hd():
     name = request.args.get('username')
     filename = request.args.get('filename')
-    user_id = str(User.get_user_id(name))
 
-    user_dir = app.config['HD_FOLDER'] + user_id + '/'
+    user_dir = app.config['HD_FOLDER'] + name + '/'
     return send_from_directory(
         user_dir,
         filename
@@ -21,18 +19,9 @@ def send_hd():
 def send_thumb():
     name = request.args.get('username')
     filename = request.args.get('filename')
-    user_id = str(User.get_user_id(name))
 
-    user_dir = app.config['THUMBNAIL_FOLDER'] + user_id + '/'
+    user_dir = app.config['THUMBNAIL_FOLDER'] + name + '/'
     return send_from_directory(
         user_dir,
         filename
     )
-
-@img_sender.route('/def_photo', methods=['GET'])
-def default_photo():
-    return send_from_directory(
-        app.config['DEFAULT_FOLDER'],
-        'photo.png'
-    )
-

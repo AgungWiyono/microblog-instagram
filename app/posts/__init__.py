@@ -1,3 +1,3 @@
 from flask_restplus import Namespace
 
-api = Namespace('Post Endpoint', description='post management')
+api = Namespace('post', description='post management')

@@ -7,11 +7,13 @@ from flask_jwt_extended import JWTManager
 
 from config import config as Cof
 
+# Image sender blueprint
+from .image_sender import img_sender
 
 #importing api resources
 
 db = SQLAlchemy()
-migrate = Migrate(compare_type=True)
+migrate = Migrate()
 api = Api()
 jwt = JWTManager()
 
@@ -32,9 +34,6 @@ def create_app(config=Cof):
 
 from .users.models import User, RevokedToken
 from .posts.models import Post
-
-# Image sender blueprint
-from .image_sender import img_sender
 
 from .users.resources import api as userApi
 from .posts.resources import api as postApi
