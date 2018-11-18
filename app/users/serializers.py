@@ -46,9 +46,8 @@ myProfile = api.model(
                     'id' : fields.String(description="User's id"),
                     'username' : fields.String(description="User's name"),
                     'about' : fields.String(description="User's bio"),
-                    'poin' : fields.Integer(description="User's total poin"),
-                    'photo' : fields.String(description="User's photo. \
-                                             Not implemented yet"),
+                    'poin' : fields.Integer(description="User's total poin", default=0),
+                    'photo' : fields.String(description="User's photo.", default="no photos yet"),
                     'posts' : fields.List(fields.Nested(userPostList)),
                 }
 )

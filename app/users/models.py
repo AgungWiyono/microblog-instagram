@@ -26,6 +26,11 @@ class User(db.Model):
     def is_phone_exists(cls, phone):
         return cls.query.filter_by(phone=phone).first()
 
+    @classmethod
+    def get_user_id(cls, username):
+        user = cls.query.filter_by(username=username).first()
+        return user.id
+
     @staticmethod
     def hash_password(password):
         return sha256.hash(password)

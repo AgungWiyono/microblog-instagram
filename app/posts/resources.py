@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
-from app.posts.helper import createLocation, saveImageTest, insertPost
+from app.posts.helper import createLocation, saveImage, insertPost
 from app.posts.serializers import postInsert
 
 app = current_app
@@ -23,7 +23,7 @@ class post(Resource):
         thumb_folder = app.config['THUMBNAIL_FOLDER']
         temp_folder = app.config['TEMP_FOLDER']
         createLocation(user, hd_folder, thumb_folder, temp_folder)
-        new_name = saveImageTest(
+        new_name = saveImage(
                     user,
                     hd_folder,
                     thumb_folder,

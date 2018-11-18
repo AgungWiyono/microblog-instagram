@@ -1,12 +1,12 @@
 import datetime
 
-from flask import request
+from flask import request, current_app
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt_identity,\
                                 get_raw_jwt, create_access_token, create_refresh_token
 
 from app.users import api
-from app.users.helper import userList, userPost, userLogin, getMyProfile
+from app.users.helper import userList, userRegister, userLogin, getMyProfile
 from app.users.models import User, RevokedToken
 from app.users.serializers import userSchema, userLoginSchema, tesSecretResource
 from app.users.serializers import refreshToken, myProfile
@@ -39,7 +39,8 @@ class UserRegister(Resource):
     @api.expect(userSchema, )
     def post(self):
         data = request.get_json()
-        status = userPost(data)
+        data['photo'] = request.host_url + 'img/def_photo'
+        status = userRegister(data)
         return status
 
 @api.route('/login')
