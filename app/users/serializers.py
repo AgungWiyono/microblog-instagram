@@ -5,7 +5,7 @@ from app.users import api
 userSchema = api.model('User',{
                  'username' : fields.String(required=True, description='user name'),
                  'password' : fields.String(required=True, description='password'),
-                 'phone' : fields.Integer(required=True, description='phone')
+                 'phone' : fields.String(required=True, description='phone')
                 }
 )
 
@@ -31,7 +31,7 @@ refreshToken = api.model('Refresh_Token',{
 # Listing user post's
 userPostList = api.model(
                 "User post's list",{
-                    'id' : fields.String(description="Post's id"),
+                    'id' : fields.Integer(description="Post's id"),
                     'story': fields.String(description="Post's story"),
                     'uploaded' : fields.DateTime(description="Uploaded date"),
                     'thumbnail' : fields.String(description="Not implemented yet"),
@@ -47,7 +47,7 @@ myProfile = api.model(
                     'username' : fields.String(description="User's name"),
                     'about' : fields.String(description="User's bio"),
                     'poin' : fields.Integer(description="User's total poin"),
-                    'photos' : fields.String(description="User's photo. \
+                    'photo' : fields.String(description="User's photo. \
                                              Not implemented yet"),
                     'posts' : fields.List(fields.Nested(userPostList)),
                 }

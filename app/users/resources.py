@@ -40,11 +40,7 @@ class UserRegister(Resource):
     def post(self):
         data = request.get_json()
         status = userPost(data)
-        if status == 1:
-            return {
-                'msg' : 'User {} was created.'.format(data['username'])
-            }, 200
-        return {'msg' : 'Operation failed.\nUser already exists.'},409
+        return status
 
 @api.route('/login')
 class UserLogin(Resource):
