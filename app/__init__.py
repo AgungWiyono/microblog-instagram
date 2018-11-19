@@ -24,6 +24,7 @@ def create_app(config=Cof):
     migrate.init_app(app, db)
     api.init_app(app, title='My Test')
 
+
     return app
 
 
@@ -33,11 +34,13 @@ from .users.models import User, RevokedToken
 
 from .users.resources import api as userApi
 from .posts.resources import api as postApi
-# from .image.resources import api as imageApi
 
 api.add_namespace(userApi, path='/users')
 api.add_namespace(postApi, path='/posts')
-# api.add_namespace(imageApi, path='/media')
+
+from .image.resources import api as imageApi
+api.add_namespace(imageApi, path='/media')
+
 
 jwt._set_error_handler_callbacks(api)
 

@@ -72,6 +72,13 @@ class Subscribe(Resource):
         return data
 
 
+@api.route('/receiveTes/<username>/<id>')
+class receiveTest(Resource):
+    def get(self, username, id):
+        return {
+            'username': username,
+            'id': id
+            }
 
 
 # =======================================================================

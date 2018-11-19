@@ -15,6 +15,10 @@ postList = api.model('Post',
 # post Post
 postInsert = api.model('Insert Post',
                         {
-                            'post' : fields.String(description='post body')
+                            'story' : fields.String(description='post body'),
+                            'latitude': fields.String(description='user gps'),
+                            'longitude': fields.String(description='user gps'),
+                            'premium': fields.String(description='0 or 1'),
+                            'convert': fields.String(description='0 or 1')
                         }
                       )

@@ -1,3 +1,6 @@
+from datetime import datetime
+import json
+
 from flask import current_app, request, send_from_directory
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -8,41 +11,51 @@ from app.posts.serializers import postInsert
 
 app = current_app
 
-img = api.parser()
-img.add_argument('Authorization', location='headers')
-img.add_argument('image', location='files', type='FileStorage')
-img.add_argument('post_body', location='form', type='string')
+post = api.parser()
+post.add_argument('Authorization', location='headers')
+post.add_argument('image', location='files', type='FileStorage')
+post.add_argument('story', type=str, location='form')
+post.add_argument('premium', type=bool, location='form')
+post.add_argument('latitude', type=int, location='form')
+post.add_argument('longitude', type=int, location='form')
+post.add_argument('convert', type=bool, location='form')
 
-@api.route('/post')
+
+@api.route('/')
 class post(Resource):
     @jwt_required
-    @api.doc(parser=img)
+    @api.doc(parser=post)
     def post(self):
         user = get_jwt_identity()
-        hd_folder = app.config['HD_FOLDER']
+
         thumb_folder = app.config['THUMBNAIL_FOLDER']
-        temp_folder = app.config['TEMP_FOLDER']
-        createLocation(user, hd_folder, thumb_folder, temp_folder)
-        new_name = saveImageTest(
+        hd_folder = app.config['HD_FOLDER']
+        createLocation(user, hd_folder, thumb_folder)
+
+        user_id, new_name = saveImageTest(
                     user,
                     hd_folder,
                     thumb_folder,
-                    temp_folder,
                     request.files['image'],
                     )
 
-        base_url = request.host_url + 'img' + '/'
-        hd_url = base_url + 'hd'
-        thumb_url = base_url + 'thumb'
-        args = '?username={}&filename={}'.format(user, new_name)
-
+        premium = True if request.form['premium']=='true'\
+                else False
         post_data = {}
-        post_data['story'] = request.form['post_body']
-        post_data['hd'] = hd_url + args
-        post_data['thumb'] = thumb_url + args
-        insertPost(post_data)
-        return {
-            'hd url': hd_url + args,
-            'thumb url': thumb_url + args,
-            'detail': post_data['story']
-        }
+        post_data['user_id'] = user_id
+        post_data['story'] = request.form['story']
+        post_data['premium']= premium
+        post_data['latitude'] = int(request.form['latitude'])
+        post_data['longitude'] = int(request.form['longitude'])
+        post_data['image'] = str(user_id) + '/' + new_name
+
+        status = insertPost(post_data)
+        return status
+
+
+@api.route('/<id>')
+class showPost(Resource):
+    def get(self, id):
+        data = getPost(id)
+        return data
+
