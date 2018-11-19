@@ -65,7 +65,8 @@ class Subscribe(Resource):
     @api.doc(parser=authorization, body=userId)
     def post(self):
         user = get_jwt_identity()
-        target = int(request.get_json()['user_id'])
+        target = request.get_json()['user_id']
+        target = int(target)
 
         data = userSubscribe(user, target)
         return data

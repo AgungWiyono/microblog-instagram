@@ -66,9 +66,23 @@ def userSubscribe(user, target):
     user = User.query.filter_by(username=user).first()
     target = User.query.filter_by(id=int(target)).first()
 
-    if user.is_subscribing(target):
-        user.unsubscribe(user)
-        return {'msg': 'Unsribing success'}, 200
+    if target is None :
+        return {'msg': 'target doesnt exist'}, 404
+    elif user is None:
+        return {'msg': 'user doesnt exist'}, 404
 
-    user.subscribe(target)
-    return {'msg': 'You have subscribed now'}, 200
+    if not user.is_subscribing(target):
+        user.subscribe(target)
+        return {'msg': 'You have subscribed now',
+                'name': user.username,
+                'target': target.username
+               }, 200
+    elif user.is_subscribing(target):
+        user.unsubscribe(target)
+        return {'msg': 'Unscribing success',
+                'name': user.username,
+                'target': target.username
+               }, 200
+    else:
+        return {'msg': 'Server error'}, 500
+

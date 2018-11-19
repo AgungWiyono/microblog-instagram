@@ -40,8 +40,9 @@ class User(db.Model):
             self.subscribed.remove(user)
             db.session.commit()
 
-    def is_subscribing(self, user):
-        return user in self.subscribed
+    def is_subscribing(self, target):
+        return self.subscribed.filter(
+            subscribers.c.subscribed_id == target.id).count() > 0
 
     def subscribed_post(self, user):
         return Post.query.join(
