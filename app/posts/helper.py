@@ -22,13 +22,6 @@ def createLocation(user, hd_path, thumb_path):
     if not os.path.exists(thumb_path):
         os.makedirs(thumb_path)
 
-def toThumbnail(image):
-    # Insert resize script here
-
-    # End of resize script
-
-    return image
-
 def checkSize(image):
     pass
     # Script for checking image size
@@ -64,8 +57,6 @@ def insertPost(data):
         uploaded = datetime.utcnow(),
         image = data['image'],
         premium = data['premium'],
-        latitude = data['latitude'],
-        longitude = data['longitude']
     )
 
     db.session.add(data)
@@ -76,11 +67,9 @@ def insertPost(data):
 
 def showPost(id):
     db_data = Post.query.filter_by(id=id).first()
-    data = {}
-    data['id'] = db_data.id
-    data['story'] = db_data.story
-    data['uploaded'] = db_data.uploaded
-    data['hd'] = db_data.image
-    data['thumb'] = db_data.image
-    data['premium'] = db_data.premium
-    data['latitude'] = db_data.latitude
+
+    if  db_data is None:
+        return {'msg': 'Server error'}, 404
+    else:
+        return {'msg': 'data found'}, 200
+

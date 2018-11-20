@@ -6,8 +6,8 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
-from app.posts.helper import createLocation, saveImageTest, insertPost
-from app.posts.serializers import postInsert
+from app.posts.helper import createLocation, saveImageTest, insertPost, showPost
+from app.posts.serializers import postInsert, postList
 
 app = current_app
 
@@ -16,8 +16,6 @@ post.add_argument('Authorization', location='headers')
 post.add_argument('image', location='files', type='FileStorage')
 post.add_argument('story', type=str, location='form')
 post.add_argument('premium', type=bool, location='form')
-post.add_argument('latitude', type=int, location='form')
-post.add_argument('longitude', type=int, location='form')
 post.add_argument('convert', type=bool, location='form')
 
 
@@ -45,17 +43,16 @@ class post(Resource):
         post_data['user_id'] = user_id
         post_data['story'] = request.form['story']
         post_data['premium']= premium
-        post_data['latitude'] = int(request.form['latitude'])
-        post_data['longitude'] = int(request.form['longitude'])
         post_data['image'] = str(user_id) + '/' + new_name
 
         status = insertPost(post_data)
         return status
 
 
-@api.route('/<id>')
+@api.route('/<int:id>')
 class showPost(Resource):
+    # @api.marshal_with(postList)
     def get(self, id):
-        data = getPost(id)
-        return data
+        data = showPost(id)
 
+        return data
