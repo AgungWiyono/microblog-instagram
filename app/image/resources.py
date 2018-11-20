@@ -6,7 +6,7 @@ from flask_restplus import Resource
 @api.route('/hd/<id>/<filename>')
 class hd_image(Resource):
     def get(self, id, filename):
-        hd_folder = current_app.config['THUMBNAIL_FOLDER']
+        hd_folder = current_app.config['HD_FOLDER']
 
         folder = id
         filename = filename

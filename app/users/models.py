@@ -15,7 +15,7 @@ class User(db.Model):
     password = db.Column(db.String(), unique=True, nullable=False)
     phone = db.Column(db.String(12), unique=True, nullable=False)
     about = db.Column(db.Text, default='Hello World')
-    poin = db.Column(db.Integer)
+    poin = db.Column(db.Integer, default=50)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     subscribed = db.relationship(
         'User', secondary=subscribers,

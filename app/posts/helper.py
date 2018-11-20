@@ -1,6 +1,7 @@
 import os
 import copy
 from datetime import datetime
+import json
 
 from PIL import Image
 from werkzeug import secure_filename
@@ -65,11 +66,11 @@ def insertPost(data):
         'msg': 'New Arts has been created.'
     }, 201
 
-def showPost(id):
+def showUserPost(id):
     db_data = Post.query.filter_by(id=id).first()
 
-    if  db_data is None:
-        return {'msg': 'Server error'}, 404
-    else:
-        return {'msg': 'data found'}, 200
+    if db_data is None:
+        return 0
+
+    return db_data
 

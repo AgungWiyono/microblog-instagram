@@ -2,11 +2,12 @@ from datetime import datetime
 import json
 
 from flask import current_app, request, send_from_directory
-from flask_restplus import Resource
+from flask_restplus import Resource, marshal
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
-from app.posts.helper import createLocation, saveImageTest, insertPost, showPost
+from app.posts.helper import createLocation, saveImageTest, insertPost
+from app.posts.helper import showUserPost
 from app.posts.serializers import postInsert, postList
 
 app = current_app
@@ -51,8 +52,9 @@ class post(Resource):
 
 @api.route('/<int:id>')
 class showPost(Resource):
-    # @api.marshal_with(postList)
     def get(self, id):
-        data = showPost(id)
+        data = showUserPost(id)
 
-        return data
+        if data==0:
+            return {'msg': 'Data not found'}, 404
+        return marshal(data, postList), 200

@@ -1,14 +1,13 @@
 from datetime import timedelta
 
-from app.users.models import User
+from app import User
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_restplus import marshal
+
+from app.users.serializers import *
 
 db = SQLAlchemy()
-
-def userList():
-    data = User.query.all()
-    return data
 
 def userPost(data):
     username = data.get('username')
@@ -27,7 +26,7 @@ def userPost(data):
         }, 422
 
     password = User.hash_password(data.get('password'))
-    data = User(username=username, password=password, phone=phone)
+    data = User(username=username, password=password, phone=phone, poin=50)
     db.session.add(data)
     db.session.commit()
     return {
@@ -85,4 +84,22 @@ def userSubscribe(user, target):
                }, 200
     else:
         return {'msg': 'Server error'}, 500
+
+def otherUserProfile(id):
+    raw_data = User.query.filter_by(id=id).first()
+
+    if not raw_data:
+        return {'msg': "Data can't be found."}, 404
+
+    data = {}
+    data['username'] = raw_data.username
+    data['phone'] = raw_data.phone
+    data['about'] = raw_data.about
+    data['poin'] = raw_data.poin
+    data['subscribed'] = raw_data.subscribed.count()
+    data['subscribers'] = raw_data.subscribers.count()
+    data['posts'] = raw_data.posts[:2]
+
+    return marshal(data, otherUserProfileSch), 200
+
 

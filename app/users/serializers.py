@@ -1,5 +1,11 @@
 from flask_restplus import fields
+from flask import request
 from app.users import api
+
+
+class thumbimage(fields.Raw):
+    def format(self,value):
+        return request.host_url + '/media/thumb/' + value
 
 # Schema: User Database Model
 userSchema = api.model('User',{
@@ -53,9 +59,23 @@ myProfile = api.model(
                 }
 )
 
+#Show posts on other user's profile
+miniPostSch = api.model(
+    'Mini posts', {
+        'id': fields.Url('post_show_post', absolute=True),
+        'image': thumbimage()
+    }
+)
+
 # Show other user profile
-otherProfile = api.model(
+otherUserProfileSch = api.model(
     'Show another user profile',{
-        'id' : fields.Url('user_other_user_list', absolute=True)
+        'username': fields.String(),
+        'phone': fields.String(),
+        'about': fields.String(),
+        'poin': fields.Integer,
+        'subscribed': fields.Integer,
+        'subscribers': fields.Integer,
+        'posts': fields.List(fields.Nested(miniPostSch))
     }
     )

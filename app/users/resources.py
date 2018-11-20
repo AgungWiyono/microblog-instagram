@@ -6,10 +6,10 @@ from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt
                                 get_raw_jwt, create_access_token, create_refresh_token
 
 from app.users import api
-from app.users.helper import userList, userPost, userLogin, getMyProfile
-from app.users.helper import userSubscribe
+from app.users.helper import userPost, userLogin, getMyProfile, userSubscribe
+from app.users.helper import otherUserProfile
 from app.users.models import User, RevokedToken
-from app.users.serializers import userSchema, userLoginSchema,otherProfile
+from app.users.serializers import userSchema, userLoginSchema
 from app.users.serializers import refreshToken, myProfile, userId
 
 authorization = api.parser()
@@ -33,13 +33,24 @@ class UserList(Resource):
         data = getMyProfile(me)
         return data
 
-@api.route('/<id>')
+@api.route('/<int:id>')
 @api.doc(description='Show user profile with id x')
 class OtherUserList(Resource):
-    @api.marshal_with(otherProfile)
     def get(self, id):
-        user = User.query.filter_by(id=id).first().username
-        data = {'id':1}
+       data = otherUserProfile(id)
+
+       return data
+
+@api.route('/subsribe')
+class Subscribe(Resource):
+    @jwt_required
+    @api.doc(parser=authorization, body=userId)
+    def post(self):
+        user = get_jwt_identity()
+        target = request.get_json()['user_id']
+        target = int(target)
+
+        data = userSubscribe(user, target)
         return data
 
 @api.route('/register')
@@ -58,28 +69,6 @@ class UserLogin(Resource):
         data = request.get_json()
         status = userLogin(data)
         return status
-
-@api.route('/subsribe')
-class Subscribe(Resource):
-    @jwt_required
-    @api.doc(parser=authorization, body=userId)
-    def post(self):
-        user = get_jwt_identity()
-        target = request.get_json()['user_id']
-        target = int(target)
-
-        data = userSubscribe(user, target)
-        return data
-
-
-@api.route('/receiveTes/<username>/<id>')
-class receiveTest(Resource):
-    def get(self, username, id):
-        return {
-            'username': username,
-            'id': id
-            }
-
 
 # =======================================================================
 @api.route('/refresh_token')
@@ -117,5 +106,3 @@ class UserLogoutRefresh(Resource):
             return {'msg' : 'Token has been revoked'}
         except:
             return {'msg' : 'Something error'}, 500
-
-
