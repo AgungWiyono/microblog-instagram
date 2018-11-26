@@ -1,13 +1,13 @@
 import datetime
 
-from flask import request
+from flask import request, redirect, url_for
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt_identity,\
                                 get_raw_jwt, create_access_token, create_refresh_token
 
 from app.users import api
 from app.users.helper import userPost, userLogin, getMyProfile, userSubscribe
-from app.users.helper import otherUserProfile
+from app.users.helper import otherUserProfile, isTheSamePerson, subbedUser
 from app.users.models import User, RevokedToken
 from app.users.serializers import userSchema, userLoginSchema
 from app.users.serializers import refreshToken, myProfile, userId
@@ -36,10 +36,16 @@ class UserList(Resource):
 @api.route('/<int:id>')
 @api.doc(description='Show user profile with id x')
 class OtherUserList(Resource):
+    @jwt_required
+    @api.expect(authorization)
     def get(self, id):
-       data = otherUserProfile(id)
 
-       return data
+        # if isTheSamePerson(id, get_jwt_identity()):
+        #     return redirect(url_for('user_user_list'))
+
+        data = otherUserProfile(id)
+
+        return data
 
 @api.route('/subsribe')
 class Subscribe(Resource):
@@ -51,6 +57,15 @@ class Subscribe(Resource):
         target = int(target)
 
         data = userSubscribe(user, target)
+        return data
+
+@api.route('/subbed')
+class SubbedUser(Resource):
+    @jwt_required
+    @api.doc(parser=authorization)
+    def get(self):
+        username = get_jwt_identity()
+        data = subbedUser(username)
         return data
 
 @api.route('/register')

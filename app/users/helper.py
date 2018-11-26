@@ -91,15 +91,30 @@ def otherUserProfile(id):
     if not raw_data:
         return {'msg': "Data can't be found."}, 404
 
-    data = {}
-    data['username'] = raw_data.username
-    data['phone'] = raw_data.phone
-    data['about'] = raw_data.about
-    data['poin'] = raw_data.poin
-    data['subscribed'] = raw_data.subscribed.count()
+    data = raw_data.toDict()
+    data['subscribing'] = raw_data.subscribed.count()
     data['subscribers'] = raw_data.subscribers.count()
     data['posts'] = raw_data.posts[:2]
 
     return marshal(data, otherUserProfileSch), 200
 
+# Check if the the requester asking his own page
+def isTheSamePerson(id, username):
+    user = User.query.filter_by(id=id).first().username
+
+    return user==username
+
+# Get all subbed user premium posts
+def subbedUser(username):
+    users = User.query.filter_by(username=username).first()
+    subbed_user = users.subscribed
+    subs = [i for i in subbed_user]
+
+    if users is None:
+        return {'msg': 'Data not found'}, 404
+
+    if subbed_user is None:
+        return {'msg': 'No Data'}, 400
+
+    return marshal(subs, miniProfileSch), 200
 

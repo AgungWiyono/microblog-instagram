@@ -8,8 +8,10 @@ from werkzeug import secure_filename
 from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
+from flask_restplus import marshal
 
 from app.posts.models import Post
+from app.posts.serializers import postFeed
 from app import User
 
 db = SQLAlchemy()
@@ -74,3 +76,8 @@ def showUserPost(id):
 
     return db_data
 
+# Getting non=premium post for explore endpoint
+def explorePost():
+    posts = Post.query.filter_by(premium=False).limit(10).all()
+
+    return marshal(posts, postFeed), 200

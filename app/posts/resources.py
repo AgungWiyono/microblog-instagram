@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
 from app.posts.helper import createLocation, saveImageTest, insertPost
-from app.posts.helper import showUserPost
+from app.posts.helper import showUserPost, explorePost
 from app.posts.serializers import postInsert, postList
 
 app = current_app
@@ -58,3 +58,9 @@ class showPost(Resource):
         if data==0:
             return {'msg': 'Data not found'}, 404
         return marshal(data, postList), 200
+
+@api.route('/explore')
+class explore(Resource):
+    def get(self):
+        data = explorePost()
+        return data

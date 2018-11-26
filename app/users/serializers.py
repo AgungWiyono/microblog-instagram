@@ -74,8 +74,19 @@ otherUserProfileSch = api.model(
         'phone': fields.String(),
         'about': fields.String(),
         'poin': fields.Integer,
-        'subscribed': fields.Integer,
+        'subscribing': fields.Integer,
         'subscribers': fields.Integer,
         'posts': fields.List(fields.Nested(miniPostSch))
     }
     )
+
+# Show mini profile in subbed section
+miniProfileSch = api.model("User's Mini Profile",
+                           {
+                               'username': fields.String(),
+                               'phone': fields.String(),
+                               'posts': fields.List(
+                                        fields.Nested(miniPostSch)
+                               )
+                           }
+                )

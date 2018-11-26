@@ -1,4 +1,5 @@
 from passlib.hash import pbkdf2_sha256 as sha256
+from sqlalchemy import inspect
 
 from app import db, Post
 
@@ -25,10 +26,14 @@ class User(db.Model):
     )
 
     def __str__(self):
-        return '{} : {}'.format(self.username, self.password)
+        return 'Username: {}'.format(self.username)
 
     def __repr__(self):
-        return '{} : {}'.format(self.username, self.password)
+        return 'Username: {}'.format(self.username)
+
+    def toDict(self):
+        return {c.key: getattr(self, c.key)
+                for c in inspect(self).mapper.column_attrs}
 
     def subscribe(self, user):
         if not self.is_subscribing(user):
@@ -44,9 +49,9 @@ class User(db.Model):
         return self.subscribed.filter(
             subscribers.c.subscribed_id == target.id).count() > 0
 
-    def subscribed_post(self, user):
+    def subscribed_post(self):
         return Post.query.join(
-            subscribers, (subscibers.c.subscribed_id== Post.user_id)).filter(
+            subscribers, (subscribers.c.subscribed_id== Post.user_id)).filter(
                 subscribers.c.subscriber_id==self.id).order_by(
                     Post.uploaded.desc()
                 )
