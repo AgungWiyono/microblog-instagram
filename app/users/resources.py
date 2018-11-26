@@ -24,7 +24,7 @@ authorization.add_argument('Authorization', location='headers')
 class UserList(Resource):
     @jwt_required
     @api.expect(authorization)
-    @api.marshal_with(myProfile)
+    @api.marshal_with(myProfile, envelope='resource')
     def get(self):
         # Should get the user post and bio
         me = get_jwt_identity()

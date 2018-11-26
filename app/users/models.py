@@ -52,9 +52,9 @@ class User(db.Model):
     def subscribed_post(self):
         return Post.query.join(
             subscribers, (subscribers.c.subscribed_id== Post.user_id)).filter(
-                subscribers.c.subscriber_id==self.id).order_by(
+                subscribers.c.subscriber_id==self.id, premium=True).order_by(
                     Post.uploaded.desc()
-                )
+                ).limit(4)
 
     @classmethod
     def find_by_username(cls, username):

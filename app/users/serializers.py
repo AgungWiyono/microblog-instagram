@@ -40,8 +40,7 @@ userPostList = api.model(
                     'id' : fields.Integer(description="Post's id"),
                     'story': fields.String(description="Post's story"),
                     'uploaded' : fields.DateTime(description="Uploaded date"),
-                    'thumbnail' : fields.String(description="Not implemented yet"),
-                    'large' : fields.String(description='Not implemented yet.'),
+                    'image': thumbimage(),
                     'user_id': fields.Integer(description='Author')
                 }
                 )
@@ -51,6 +50,7 @@ myProfile = api.model(
                 'Logged in User Profile', {
                     'id' : fields.String(description="User's id"),
                     'username' : fields.String(description="User's name"),
+                    'photo': fields.Url('media_profile_image', absolute=True),
                     'about' : fields.String(description="User's bio"),
                     'poin' : fields.Integer(description="User's total poin"),
                     'photo' : fields.String(description="User's photo. \
@@ -62,7 +62,7 @@ myProfile = api.model(
 #Show posts on other user's profile
 miniPostSch = api.model(
     'Mini posts', {
-        'id': fields.Url('post_show_post', absolute=True),
+        'id': fields.Url('post_show_post', absolute=True, attribute='post'),
         'image': thumbimage()
     }
 )

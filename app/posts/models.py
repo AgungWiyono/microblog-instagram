@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy import inspect
+
 from app import db
 
 class Post(db.Model):
@@ -14,3 +16,7 @@ class Post(db.Model):
 
     def __str__(self):
         return 'Post by :{}'.format(self.author.username)
+
+    def toDict(self):
+        return {c.key: getattr(self. c.key)
+                for c in inspect(self).mapper.column_attrs}

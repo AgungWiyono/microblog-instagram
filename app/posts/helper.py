@@ -78,6 +78,6 @@ def showUserPost(id):
 
 # Getting non=premium post for explore endpoint
 def explorePost():
-    posts = Post.query.filter_by(premium=False).limit(10).all()
+    posts = Post.query.filter_by(premium=False).order_by(Post.uploaded.desc()).limit(10).all()
 
     return marshal(posts, postFeed), 200

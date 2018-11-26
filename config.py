@@ -11,5 +11,5 @@ class config(object):
 
     THUMBNAIL_FOLDER='{}/media/thumb/'.format(BASE_DIR)
     HD_FOLDER='{}/media/hd/'.format(BASE_DIR)
-    TEMP_FOLDER='{}/media/temp/'.format(BASE_DIR)
+    MEDIA_FOLDER='{}/media/'.format(BASE_DIR)
     PROPAGATE_EXCEPTIONS=True

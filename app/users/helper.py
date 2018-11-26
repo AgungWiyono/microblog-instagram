@@ -58,8 +58,12 @@ def userLogin(data):
 # Get user's profile
 def getMyProfile(name):
     data = User.query.filter_by(username=name).first()
+    posts = data.posts[:5]
+    data_dict = data.toDict()
+    data_dict['posts'] = posts
+    data_dict['photo'] = data.id
 
-    return data
+    return data_dict
 
 def userSubscribe(user, target):
     user = User.query.filter_by(username=user).first()
