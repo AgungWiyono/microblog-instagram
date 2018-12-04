@@ -31,11 +31,14 @@ class post(Resource):
         hd_folder = app.config['HD_FOLDER']
         createLocation(user, hd_folder, thumb_folder)
 
+        print(request.form)
+
         user_id, new_name = saveImageTest(
                     user,
                     hd_folder,
                     thumb_folder,
                     request.files['image'],
+                    request.form['convert']
                     )
 
         premium = True if request.form['premium']=='true'\

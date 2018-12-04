@@ -3,7 +3,9 @@ import copy
 from datetime import datetime
 import json
 
-from PIL import Image
+from skimage.transform import resize
+from skimage.io import imread, imsave
+
 from werkzeug import secure_filename
 from flask import current_app
 from flask_jwt_extended import get_jwt_identity
@@ -12,6 +14,7 @@ from flask_restplus import marshal
 
 from app.posts.models import Post
 from app.posts.serializers import postFeed
+from app.posts.converter import convert
 from app import User
 
 db = SQLAlchemy()
@@ -32,23 +35,26 @@ def checkSize(image):
     # Return bool
     # False if image is too big
 
-def saveImageTest(user, hd_folder, thumb_folder, image):
+def saveImageTest(user, hd_folder, thumb_folder, image, is_convert):
     user = str(User.query.filter_by(username=user).first().id)
 
     # Rename image filename and create folder
     img_extension = os.path.splitext(image.filename)[1]
     img_name = datetime.now().strftime('%Y%m%d%H%M%S%f') + img_extension
 
+    if is_convert:
+        image = convert(image)
+
     # Resize and save to HD
-    hd_image = Image.open(image)
+    hd_image = image
     hd_path = hd_folder + user + '/' + img_name
-    hd_image.save(hd_path)
+    imsave(hd_path, hd_image)
 
     # Resize and save to Thumb
-    thumbnail_image = Image.open(hd_path)
-    thumbnail_image.thumbnail((128,128))
+    thumbnail_image = imread(hd_path)
+    thumbnail_image = resize(thumbnail_image, (128,128))
     thumb_path = thumb_folder + user + '/' + img_name
-    thumbnail_image.save(thumb_path)
+    imsave(thumb_path, thumbnail_image)
 
 
     return user, img_name
