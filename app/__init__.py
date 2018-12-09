@@ -6,6 +6,7 @@ from flask_restplus import Api, Resource
 from flask_jwt_extended import JWTManager
 
 from config import config as Cof
+from app.error import bp
 
 
 #importing api resources
@@ -18,6 +19,8 @@ jwt = JWTManager()
 def create_app(config=Cof):
     app = Flask(__name__)
     app.config.from_object(config)
+
+    app.register_blueprint(bp)
 
     jwt.init_app(app)
     db.init_app(app)

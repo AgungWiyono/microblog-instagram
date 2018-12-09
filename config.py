@@ -14,3 +14,5 @@ class config(object):
     HD_FOLDER='{}/media/hd/'.format(BASE_DIR)
     MEDIA_FOLDER='{}/media/'.format(BASE_DIR)
     PROPAGATE_EXCEPTIONS=True
+
+    ERROR_INCLUDE_MESSAGE = False

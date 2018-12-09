@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 
 from flask import current_app, request, send_from_directory
-from flask_restplus import Resource, marshal
+from flask_restplus import Resource, marshal, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
@@ -55,12 +55,13 @@ class post(Resource):
 
 @api.route('/<int:id>')
 class showPost(Resource):
+    @api.marshal_with(postList)
     def get(self, id):
         data = showUserPost(id)
 
         if data==0:
-            return {'msg': 'Data not found'}, 404
-        return marshal(data, postList), 200
+            abort(404, 'Data not found')
+        return data
 
 @api.route('/explore')
 class explore(Resource):

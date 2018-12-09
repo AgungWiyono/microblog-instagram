@@ -3,7 +3,7 @@ from datetime import timedelta
 from app import User
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_restplus import marshal
+from flask_restplus import marshal, abort
 
 from app.users.serializers import *
 
@@ -13,17 +13,11 @@ def userPost(data):
     username = data.get('username')
     phone = data.get('phone')
     if User.find_by_username(username):
-        return {
-            'msg' : 'Username is exists'
-        }, 422
+        abort(422, 'Username  exists')
     if User.is_phone_exists(phone):
-        return{
-            'msg': 'Phone number exist'
-        }, 422
+        abort(422, 'Phone number is exists')
     if phone.isalpha():
-        return {
-            'msg': 'Phone number must contain numbers only.'
-        }, 422
+        abort(422, 'Phone number should contain numbers only')
 
     password = User.hash_password(data.get('password'))
     data = User(username=username, password=password, phone=phone, poin=50)
@@ -41,7 +35,7 @@ def userLogin(data):
 
     exist_user = User.query.filter_by(username=username).first()
     if not exist_user:
-        return {'msg' : "User doesn't exists."},404
+        abort(404, 'User doesn\'t exists')
 
     if User.verify_password(password, exist_user.password):
         access_token = create_access_token(identity=data['username'], expires_delta=timedelta(hours=10))
@@ -70,6 +64,7 @@ def userSubscribe(user, target):
     target = User.query.filter_by(id=int(target)).first()
 
     if target is None :
+        abort(404, 'Target doesn\'t exists')
         return {'msg': 'target doesnt exist'}, 404
     elif user is None:
         return {'msg': 'user doesnt exist'}, 404

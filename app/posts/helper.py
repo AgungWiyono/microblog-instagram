@@ -10,10 +10,10 @@ from werkzeug import secure_filename
 from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
-from flask_restplus import marshal
+from flask_restplus import marshal, abort
 
 from app.posts.models import Post
-from app.posts.serializers import postFeed
+from app.posts.serializers import postFeed, postList
 from app.posts.converter import convert
 from app import User
 
@@ -42,8 +42,10 @@ def saveImageTest(user, hd_folder, thumb_folder, image, is_convert):
     img_extension = os.path.splitext(image.filename)[1]
     img_name = datetime.now().strftime('%Y%m%d%H%M%S%f') + img_extension
 
-    if is_convert:
+    if is_convert=='true':
         image = convert(image)
+    else:
+        image = imread(image)
 
     # Resize and save to HD
     hd_image = image
@@ -78,9 +80,9 @@ def showUserPost(id):
     db_data = Post.query.filter_by(id=id).first()
 
     if db_data is None:
-        return 0
-
-    return db_data
+        print('go to abort')
+        abort(404, 'Post not found')
+    return db_data, 200
 
 # Getting non=premium post for explore endpoint
 def explorePost():
