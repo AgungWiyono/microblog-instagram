@@ -4,9 +4,9 @@ from app.posts import api
 
 
 # Show user in post
-miniUser = api.model('Post Author',
+mini_user = api.model('Post Author',
                     {
-                        'id': fields.Url('user_other_user_list', absolute=True),
+                        'id': fields.Url('user_profile', absolute=True),
                         'username': fields.String(),
                         'about': fields.String(),
                         'phone': fields.String()
@@ -14,9 +14,9 @@ miniUser = api.model('Post Author',
                     )
 
 # Show user in post
-miniUser2 = api.model('Post Author',
+mini_user2= api.model('Post Author',
                     {
-                        'id': fields.Url('user_other_user_list', absolute=True),
+                        'id': fields.Url('user_user_profile', absolute=True),
                         'username': fields.String(),
                         'phone': fields.String()
                     }
@@ -32,30 +32,28 @@ class thumbimage(fields.Raw):
 
 
 # show Post
-postList = api.model('Post',
+post_list= api.model('Post',
                     {
                     'story' : fields.String(description='Post body'),
                     'uploaded' : fields.DateTime(description='Uploaded date'),
                     'image': hdimage(),
-                    'author': fields.Nested(miniUser)
+                    'author': fields.Nested(mini_user)
                     }
                 )
 
 # Posts Fedd
-postFeed = api.model('Posts Feed',
+post_feed= api.model('Posts Feed',
                     {
                     'story' : fields.String(description='Post body'),
                     'uploaded' : fields.DateTime(description='Uploaded date'),
                     'image': hdimage(),
-                    'author': fields.Nested(miniUser2)
+                    'author': fields.Nested(mini_user2)
                     }
                 )
 
 # post Post
-postInsert = api.model('Insert Post',
+post_insert = api.model('Insert Post',
                         {
-                            'story' : fields.String(description='post body'),
-                            'premium': fields.String(description='0 or 1'),
-                            'convert': fields.String(description='0 or 1')
+                            'status':fields.String,
                         }
                       )

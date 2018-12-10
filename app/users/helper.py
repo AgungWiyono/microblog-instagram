@@ -1,19 +1,17 @@
 from datetime import timedelta
 
-from app import User
+from app.models import to_dict, User
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_restplus import marshal, abort
 
-from app.users.serializers import *
-
 db = SQLAlchemy()
 
-def userPost(data):
+def user_post(data):
     username = data.get('username')
     phone = data.get('phone')
     if User.find_by_username(username):
-        abort(422, 'Username  exists')
+        return abort(422, 'Username  exists')
     if User.is_phone_exists(phone):
         abort(422, 'Phone number is exists')
     if phone.isalpha():
@@ -27,9 +25,9 @@ def userPost(data):
         'username': username,
         'phone': phone,
         'token': create_access_token(identity=username)
-    },200
+    }
 
-def userLogin(data):
+def user_login(data):
     username = data.get('username')
     password = data.get('password')
 
@@ -45,57 +43,84 @@ def userLogin(data):
             'username': exist_user.username ,
             'id': exist_user.id,
             'token' : access_token
-        },200
+        }
     else:
-        return {'msg' : 'Password is not correct.'},401
+        abort(401, 'Password is not correct')
 
-# Get user's profile
-def getMyProfile(name):
-    data = User.query.filter_by(username=name).first()
-    posts = data.posts[:5]
-    data_dict = data.toDict()
-    data_dict['posts'] = posts
-    data_dict['photo'] = data.id
+def user_profile(user ,id):
+    if type(id)==int:
+        raw_data = User.query.filter_by(id=id).first()
+    else:
+        raw_data = User.query.filter_by(username=id).first()
+    user = User.query.filter_by(username=user).first()
 
-    return data_dict
+    if not raw_data:
+        abort(401, "Data can't be found")
 
-def userSubscribe(user, target):
+    status = 0
+    posts = raw_data.posts
+    if raw_data.id==user.id:
+        status = 2
+    elif user.is_subscribing(raw_data):
+        status = 1
+        posts = [post for post in posts if post.premium==True]
+    elif not user.is_subscribing(raw_data):
+        posts = [post for post in posts if post.premium==False]
+
+    data = to_dict(raw_data)
+    data['subscribing'] = raw_data.subscribed.count()
+    data['subscribers'] = raw_data.subscribers.count()
+    data['post'] = raw_data.posts.count()
+    data['posts'] =posts
+    data['status'] = status
+
+    return data
+
+def subscribe(user, target):
     user = User.query.filter_by(username=user).first()
     target = User.query.filter_by(id=int(target)).first()
 
     if target is None :
         abort(404, 'Target doesn\'t exists')
-        return {'msg': 'target doesnt exist'}, 404
     elif user is None:
-        return {'msg': 'user doesnt exist'}, 404
+        abort(404, 'User doesn\'t exists')
 
     if not user.is_subscribing(target):
         user.subscribe(target)
-        return {'msg': 'You have subscribed now',
+        return {'status': 'You\'re subscribing {} now'.format(target.name),
                 'name': user.username,
                 'target': target.username
-               }, 200
+               }
+    elif user.is_subscribing(target):
+        return {'status': 'You have subscribe this user.',
+                'name': user.username,
+                'target': target.username
+               }
+    else:
+        abort(500, 'Server Error')
+
+def unsubscribe(user, target):
+    user = User.query.filter_by(username=user).first()
+    target = User.query.filter_by(id=int(target)).first()
+
+    if target is None :
+        abort(404, 'Target doesn\'t exists')
+    elif user is None:
+        abort(404, 'User doesn\'t exists')
+
+    if not user.is_subscribing(target):
+        return {'status': 'You\'re not subscribing this user.',
+                'name': user.username,
+                'target': target.username
+               }
     elif user.is_subscribing(target):
         user.unsubscribe(target)
-        return {'msg': 'Unscribing success',
+        return {'status': 'You have unsubscribe this user.',
                 'name': user.username,
                 'target': target.username
-               }, 200
+               }
     else:
-        return {'msg': 'Server error'}, 500
-
-def otherUserProfile(id):
-    raw_data = User.query.filter_by(id=id).first()
-
-    if not raw_data:
-        return {'msg': "Data can't be found."}, 404
-
-    data = raw_data.toDict()
-    data['subscribing'] = raw_data.subscribed.count()
-    data['subscribers'] = raw_data.subscribers.count()
-    data['posts'] = raw_data.posts[:2]
-
-    return marshal(data, otherUserProfileSch), 200
+        abort(500, 'Server Error')
 
 # Check if the the requester asking his own page
 def isTheSamePerson(id, username):
@@ -104,16 +129,15 @@ def isTheSamePerson(id, username):
     return user==username
 
 # Get all subbed user premium posts
-def subbedUser(username):
+def subbed_user(username):
     users = User.query.filter_by(username=username).first()
     subbed_user = users.subscribed
     subs = [i for i in subbed_user]
 
     if users is None:
-        return {'msg': 'Data not found'}, 404
+        abort(404, 'Data not found')
 
     if subbed_user is None:
-        return {'msg': 'No Data'}, 400
+        abort(400, 'No data')
 
-    return marshal(subs, miniProfileSch), 200
-
+    return subs

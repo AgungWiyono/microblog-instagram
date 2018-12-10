@@ -12,14 +12,12 @@ from flask_jwt_extended import get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_restplus import marshal, abort
 
-from app.posts.models import Post
-from app.posts.serializers import postFeed, postList
+from app.models import Post, User, to_dict
 from app.posts.converter import convert
-from app import User
 
 db = SQLAlchemy()
 
-def createLocation(user, hd_path, thumb_path):
+def create_location(user, hd_path, thumb_path):
     user = str(User.query.filter_by(username=user).first().id)
     hd_path = hd_path + user +'/'
     thumb_path = thumb_path + user +'/'
@@ -28,14 +26,14 @@ def createLocation(user, hd_path, thumb_path):
     if not os.path.exists(thumb_path):
         os.makedirs(thumb_path)
 
-def checkSize(image):
+def check_size(image):
     pass
     # Script for checking image size
 
     # Return bool
     # False if image is too big
 
-def saveImageTest(user, hd_folder, thumb_folder, image, is_convert):
+def save_image(user, hd_folder, thumb_folder, image, is_convert):
     user = str(User.query.filter_by(username=user).first().id)
 
     # Rename image filename and create folder
@@ -61,7 +59,7 @@ def saveImageTest(user, hd_folder, thumb_folder, image, is_convert):
 
     return user, img_name
 
-def insertPost(data):
+def insert_post(data):
     data = Post(
         user_id = data['user_id'],
         story = data['story'],
@@ -73,19 +71,19 @@ def insertPost(data):
     db.session.add(data)
     db.session.commit()
     return {
-        'msg': 'New Arts has been created.'
+        'status': 'New Arts has been created.'
     }, 201
 
-def showUserPost(id):
-    db_data = Post.query.filter_by(id=id).first()
+def show_user_post(id):
+    db_query = Post.query.filter_by(id=id).first()
 
-    if db_data is None:
+    if db_query is None:
         print('go to abort')
         abort(404, 'Post not found')
-    return db_data, 200
+    return db_query
 
 # Getting non=premium post for explore endpoint
-def explorePost():
+def explore_post():
     posts = Post.query.filter_by(premium=False).order_by(Post.uploaded.desc()).limit(10).all()
 
-    return marshal(posts, postFeed), 200
+    return posts

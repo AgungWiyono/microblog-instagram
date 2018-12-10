@@ -30,10 +30,7 @@ def create_app(config=Cof):
 
     return app
 
-
-
-from .posts.models import Post
-from .users.models import User, RevokedToken
+from .models import User, Post, RevokedToken
 
 from .users.resources import api as userApi
 from .posts.resources import api as postApi
@@ -57,5 +54,5 @@ def expired_token():
     return jsonify({
         'status': 401,
         'sub_status': 42,
-        'message': 'The token has expired'
+        'msg': 'The token has expired'
     }), 401

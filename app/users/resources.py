@@ -6,11 +6,9 @@ from flask_jwt_extended import jwt_required, jwt_refresh_token_required, get_jwt
                                 get_raw_jwt, create_access_token, create_refresh_token
 
 from app.users import api
-from app.users.helper import userPost, userLogin, getMyProfile, userSubscribe
-from app.users.helper import otherUserProfile, isTheSamePerson, subbedUser
-from app.users.models import User, RevokedToken
-from app.users.serializers import userSchema, userLoginSchema
-from app.users.serializers import refreshToken, myProfile, userId
+from app.users import helper as h
+from app.models import User, RevokedToken
+from app.users import serializers as s
 
 authorization = api.parser()
 authorization.add_argument('Authorization', location='headers')
@@ -19,70 +17,84 @@ authorization.add_argument('Authorization', location='headers')
 # for routes that needs authentication of model and header:
 # @api.doc(parser = authorization, body=userLoginSchema)
 
-@api.route('/')
+@api.route('')
 @api.doc(description='Show logged in user profile')
-class UserList(Resource):
+class myList(Resource):
     @jwt_required
     @api.expect(authorization)
-    @api.marshal_with(myProfile, envelope='resource')
+    @api.marshal_with(s.user_profile)
     def get(self):
         # Should get the user post and bio
         me = get_jwt_identity()
 
         # Get user's profile from helper
-        data = getMyProfile(me)
-        return data
+        data = h.user_profile(me, me)
+        return data, 200
 
 @api.route('/<int:id>')
 @api.doc(description='Show user profile with id x')
-class OtherUserList(Resource):
+class userProfile(Resource):
     @jwt_required
     @api.expect(authorization)
+    @api.marshal_with(s.user_profile)
     def get(self, id):
-
-        # if isTheSamePerson(id, get_jwt_identity()):
-        #     return redirect(url_for('user_user_list'))
-
-        data = otherUserProfile(id)
-
+        user = get_jwt_identity()
+        data = h.user_profile(user, id)
         return data
 
 @api.route('/subsribe')
 class Subscribe(Resource):
     @jwt_required
-    @api.doc(parser=authorization, body=userId)
+    @api.doc(parser=authorization, body= s.user_id)
+    @api.marshal_with(s.subs_response)
     def post(self):
         user = get_jwt_identity()
         target = request.get_json()['user_id']
         target = int(target)
 
-        data = userSubscribe(user, target)
+        data = h.subscribe(user, target)
+        return data
+
+@api.route('/unsubscribe')
+class Unsubscribe(Resource):
+    @jwt_required
+    @api.doc(parser= authorization, body= s.user_id)
+    @api.marshal_with(s.subs_response)
+    def post(self):
+        user = get_jwt_identity()
+        target = request.get_json()['user_id']
+        target= int(target)
+
+        data = h.unsubscribe(user, target)
         return data
 
 @api.route('/subbed')
 class SubbedUser(Resource):
     @jwt_required
     @api.doc(parser=authorization)
+    @api.marshal_with(s.mini_profile)
     def get(self):
         username = get_jwt_identity()
-        data = subbedUser(username)
+        data = h.subbed_user(username)
         return data
 
 @api.route('/register')
 @api.doc(description='user registration')
 class UserRegister(Resource):
-    @api.expect(userSchema, )
+    @api.expect(s.user_schema)
+    @api.marshal_with(s.register_response)
     def post(self):
         data = request.get_json()
-        status = userPost(data)
+        status = h.user_post(data)
         return status
 
 @api.route('/login')
 class UserLogin(Resource):
-    @api.expect(userLoginSchema)
+    @api.expect(s.user_login)
+    @api.marshal_with(s.login_response)
     def post(self):
         data = request.get_json()
-        status = userLogin(data)
+        status = h.user_login(data)
         return status
 
 # =======================================================================

@@ -6,9 +6,8 @@ from flask_restplus import Resource, marshal, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.posts import api
-from app.posts.helper import createLocation, saveImageTest, insertPost
-from app.posts.helper import showUserPost, explorePost
-from app.posts.serializers import postInsert, postList
+from app.posts import helper as h
+from app.posts import serializers as s
 
 app = current_app
 
@@ -20,20 +19,21 @@ post.add_argument('premium', type=bool, location='form')
 post.add_argument('convert', type=bool, location='form')
 
 
-@api.route('/')
+@api.route('')
 class post(Resource):
     @jwt_required
     @api.doc(parser=post)
+    @api.marshal_with(s.post_insert)
     def post(self):
         user = get_jwt_identity()
 
         thumb_folder = app.config['THUMBNAIL_FOLDER']
         hd_folder = app.config['HD_FOLDER']
-        createLocation(user, hd_folder, thumb_folder)
+        h.create_location(user, hd_folder, thumb_folder)
 
         print(request.form)
 
-        user_id, new_name = saveImageTest(
+        user_id, new_name = h.save_image(
                     user,
                     hd_folder,
                     thumb_folder,
@@ -49,22 +49,21 @@ class post(Resource):
         post_data['premium']= premium
         post_data['image'] = str(user_id) + '/' + new_name
 
-        status = insertPost(post_data)
+        status = h.insert_post(post_data)
         return status
 
 
 @api.route('/<int:id>')
 class showPost(Resource):
-    @api.marshal_with(postList)
+    @api.marshal_with(s.post_list)
     def get(self, id):
-        data = showUserPost(id)
+        data = h.show_user_post(id)
 
-        if data==0:
-            abort(404, 'Data not found')
         return data
 
 @api.route('/explore')
 class explore(Resource):
+    @api.marshal_with(s.post_feed)
     def get(self):
-        data = explorePost()
+        data = h.explore_post()
         return data
